@@ -1,0 +1,146 @@
+{
+    "data": [
+        {
+            "status": "000",
+            "message": "정상",
+            "page_no": 1,
+            "page_count": 100,
+            "total_count": 12,
+            "total_page": 1,
+            "list": [
+                {
+                    "corp_code": "00965813",
+                    "corp_name": "미투온",
+                    "stock_code": "201490",
+                    "corp_cls": "K",
+                    "report_nm": "연결재무제표기준영업(잠정)실적(공정공시)",
+                    "rcept_no": "20210210900808",
+                    "flr_nm": "미투온",
+                    "rcept_dt": "20210210",
+                    "rm": "코"
+                },
+                {
+                    "corp_code": "01416235",
+                    "corp_name": "미투젠",
+                    "stock_code": "950190",
+                    "corp_cls": "K",
+                    "report_nm": "연결재무제표기준영업(잠정)실적(공정공시)",
+                    "rcept_no": "20210210900822",
+                    "flr_nm": "미투젠",
+                    "rcept_dt": "20210210",
+                    "rm": "코"
+                },
+                {
+                    "corp_code": "00877174",
+                    "corp_name": "엠브레인",
+                    "stock_code": "169330",
+                    "corp_cls": "K",
+                    "report_nm": "연결재무제표기준영업(잠정)실적(공정공시)",
+                    "rcept_no": "20210210900712",
+                    "flr_nm": "엠브레인",
+                    "rcept_dt": "20210210",
+                    "rm": "코"
+                },
+                {
+                    "corp_code": "00877174",
+                    "corp_name": "엠브레인",
+                    "stock_code": "169330",
+                    "corp_cls": "K",
+                    "report_nm": "영업(잠정)실적(공정공시)",
+                    "rcept_no": "20210210900707",
+                    "flr_nm": "엠브레인",
+                    "rcept_dt": "20210210",
+                    "rm": "코"
+                },
+                {
+                    "corp_code": "00918222",
+                    "corp_name": "엘앤케이바이오",
+                    "stock_code": "156100",
+                    "corp_cls": "K",
+                    "report_nm": "영업(잠정)실적(공정공시)",
+                    "rcept_no": "20210210900619",
+                    "flr_nm": "엘앤케이바이오",
+                    "rcept_dt": "20210210",
+                    "rm": "코"
+                },
+                {
+                    "corp_code": "00549891",
+                    "corp_name": "케어젠",
+                    "stock_code": "214370",
+                    "corp_cls": "K",
+                    "report_nm": "연결재무제표기준영업(잠정)실적(공정공시)",
+                    "rcept_no": "20210210900408",
+                    "flr_nm": "케어젠",
+                    "rcept_dt": "20210210",
+                    "rm": "코"
+                },
+                {
+                    "corp_code": "00541437",
+                    "corp_name": "코렌텍",
+                    "stock_code": "104540",
+                    "corp_cls": "K",
+                    "report_nm": "연결재무제표기준영업(잠정)실적(공정공시)",
+                    "rcept_no": "20210210900253",
+                    "flr_nm": "코렌텍",
+                    "rcept_dt": "20210210",
+                    "rm": "코"
+                },
+                {
+                    "corp_code": "00220057",
+                    "corp_name": "유비케어",
+                    "stock_code": "032620",
+                    "corp_cls": "K",
+                    "report_nm": "연결재무제표기준영업(잠정)실적(공정공시)",
+                    "rcept_no": "20210210900186",
+                    "flr_nm": "유비케어",
+                    "rcept_dt": "20210210",
+                    "rm": "코"
+                },
+                {
+                    "corp_code": "00545734",
+                    "corp_name": "아미코젠",
+                    "stock_code": "092040",
+                    "corp_cls": "K",
+                    "report_nm": "연결재무제표기준영업(잠정)실적(공정공시)",
+                    "rcept_no": "20210210900103",
+                    "flr_nm": "아미코젠",
+                    "rcept_dt": "20210210",
+                    "rm": "코"
+                },
+                {
+                    "corp_code": "00643656",
+                    "corp_name": "조이맥스",
+                    "stock_code": "101730",
+                    "corp_cls": "K",
+                    "report_nm": "연결재무제표기준영업(잠정)실적(공정공시)",
+                    "rcept_no": "20210210900083",
+                    "flr_nm": "조이맥스",
+                    "rcept_dt": "20210210",
+                    "rm": "코"
+                },
+                {
+                    "corp_code": "00444329",
+                    "corp_name": "위메이드",
+                    "stock_code": "112040",
+                    "corp_cls": "K",
+                    "report_nm": "연결재무제표기준영업(잠정)실적(공정공시)",
+                    "rcept_no": "20210210900074",
+                    "flr_nm": "위메이드",
+                    "rcept_dt": "20210210",
+                    "rm": "코"
+                },
+                {
+                    "corp_code": "00815767",
+                    "corp_name": "선데이토즈",
+                    "stock_code": "123420",
+                    "corp_cls": "K",
+                    "report_nm": "연결재무제표기준영업(잠정)실적(공정공시)",
+                    "rcept_no": "20210210900069",
+                    "flr_nm": "선데이토즈",
+                    "rcept_dt": "20210210",
+                    "rm": "코"
+                }
+            ]
+        }
+    ]
+}
