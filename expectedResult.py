@@ -114,8 +114,8 @@ if __name__ == "__main__":
     disclosure = getDisclosure(20210210)
     diffList = diffStockList(preDisclosure, disclosure)
 
-    rceptNum = getRceptNum(diffList)
-    result = crawlingRcept(rceptNum)
+    receptNum = getRceptNum(diffList)  # receptNum에 신규 잠정실적 종목리스트 있음
+    result = crawlingRcept(receptNum)  # result에 신규 잠정실적 크롤링 결과 있음
     output = df(data=result['data'])
     output.to_csv("data/result.csv", encoding='UTF-8-SIG')
     print('Done')
