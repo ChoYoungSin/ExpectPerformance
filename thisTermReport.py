@@ -42,3 +42,17 @@ def get_finance_info(business_year, report_code, corp_code):
 
 
     return result
+
+
+
+
+
+
+
+def return_performance():
+    # 이 함수에 return으로
+    # return = [{종목코드 : '', 매출액: '', 영업이익: '', 순이익: '', 매출액 성장률: '', 영업이익  성장률: '', 순이익  성장률: ''},
+    #           {종목코드 : '', 매출액: '', 영업이익: '', 순이익: '', 매출액 성장률: '', 영업이익  성장률: '', 순이익  성장률: ''},
+    #           ''']
+    # 위 list 안의 dictionary들로 제공해주면 Best
+    pass

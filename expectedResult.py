@@ -50,9 +50,9 @@ def getRceptNum(diffList):
     thisTerm = []
     for enterprise in diffList:
         if '잠정' in enterprise['report_nm']:
-            expect.append([enterprise['stock_code'], enterprise['corp_name'], enterprise['rcept_no']])  # enterprise['report_nm'],
+            expect.append([enterprise['stock_code'], enterprise['corp_name'], enterprise['rcept_no'], enterprise['corp_code']])
         elif '보고서' in enterprise['report_nm'] and '정정' not in enterprise['report_nm'] and '추가' not in enterprise['report_nm']:
-            thisTerm.append([enterprise['stock_code'], enterprise['corp_name'], enterprise['rcept_no']])
+            thisTerm.append([enterprise['stock_code'], enterprise['corp_name'], enterprise['rcept_no'], enterprise['corp_code']])
 
     with open('data/RceptNumber.json', 'w', encoding='UTF-8') as outfile:
         json.dump(expect + thisTerm, outfile, indent=4, ensure_ascii=False)
@@ -96,7 +96,7 @@ def crawlingRcept(rcpNum):
             #print('profits: ', profits)
             #print('netProfits: ', netProfits, '\n')
 
-            result['data'].append({'종목코드': rcp[0], '종목명': rcp[1], '유동비율': '-', '부채비율': '-', '영업이익률': str(profitRate),
+            result['data'].append({'종목코드': rcp[0], '종목명': rcp[1], #'유동비율': '-', '부채비율': '-', '영업이익률': str(profitRate),
                                    '매출액 성장률': sales[-1].strip('()'), '영업이익 성장률': profits[-1].strip('()'), '당기순이익 성장률': netProfits[-1].strip('()')})
 
         except Exception as ex:
