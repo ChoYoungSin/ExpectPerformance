@@ -24,7 +24,7 @@ def getDisclosure(begin_date):
         param = {
             'crtfc_key': API_KEY,
             'bgn_de': str(begin_date),
-            'pblntf_detail_ty': pblntf_ty["잠정"],
+            'pblntf_detail_ty': 'I002',#pblntf_ty["잠정"],
             'corp_cls': 'K',
             'page_no': str(page_count),
             'page_count': '100'
@@ -34,6 +34,7 @@ def getDisclosure(begin_date):
             'https://opendart.fss.or.kr/api/list.json', params=param)
         r.raise_for_status()
         data = json.loads(r.text)
+        print(data)
 
         result['data'].append(data)
         if data['total_page'] <= page_count:
@@ -50,7 +51,7 @@ def getRceptNum(diffList):
     temp = []
     for enterprise in diffList:
         if '잠정' in enterprise['report_nm']:
-            temp.append([enterprise['corp_code'], enterprise['corp_name'],
+            temp.append([enterprise['stock_code'], enterprise['corp_name'],
                          enterprise['rcept_no']])  # enterprise['report_nm'],
 
     with open('data/RceptNumber.json', 'w', encoding='UTF-8') as outfile:
@@ -61,6 +62,7 @@ def getRceptNum(diffList):
 
 def crawlingRcept(rcpNum):
     result = {'data': []}
+    print(rcpNum)
     for rcp in rcpNum:
         try:
             res = requests.get(
@@ -127,7 +129,9 @@ def getConsensus(stockCodeList, data):
         stockCode = ''
         for stockList in stockCodeList:
             if comDic['종목코드'] == stockList['stock_code']:
+                print(stockList['stock_code'])
                 stockCode = stockList['stock_code']
+                break
         readWiseReport(stockCode)
 
 
@@ -138,15 +142,16 @@ def readWiseReport(corp_code):
 
     res = requests.get(URL)
     jdata = json.loads(res.text)
+    print(corp_code, ': ')
     pprint(jdata)
     #  return [corp_code:]
 
 
 if __name__ == "__main__":
     nowTime = time.strftime('%Y%m%d', time.localtime(time.time()))
-    preDisclosure = json.load(
-        open('data/Disclosure_1.json', 'r', encoding='utf-8'))
-    disclosure = getDisclosure(20210210)
+    preDisclosure = json.load(open('data/Disclosure_1.json', 'r', encoding='utf-8'))
+    disclosure = getDisclosure(20210216)
+
     diffList = diffStockList(preDisclosure, disclosure)
 
     receptNum = getRceptNum(diffList)  # receptNum에 신규 잠정실적 종목리스트 있음
@@ -155,7 +160,7 @@ if __name__ == "__main__":
     output.to_csv("data/result.csv", encoding='UTF-8-SIG')
     print('Done')
 
-    getConsensus(preDisclosure, result)
+    getConsensus(diffList, result)
 
     '''
     1분기보고서 : 11013
