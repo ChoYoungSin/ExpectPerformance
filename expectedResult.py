@@ -25,7 +25,7 @@ def getDisclosure(begin_date):
             'crtfc_key': API_KEY,
             'bgn_de': str(begin_date),
             'pblntf_detail_ty': 'I002',  # pblntf_ty["잠정"],
-            'corp_cls': 'K',
+            #'corp_cls': 'K',
             'page_no': str(page_count),
             'page_count': '100'
         }
@@ -34,7 +34,7 @@ def getDisclosure(begin_date):
             'https://opendart.fss.or.kr/api/list.json', params=param)
         r.raise_for_status()
         data = json.loads(r.text)
-        # print(data)
+        #print(data)
 
         result['data'].append(data)
         if data['total_page'] <= page_count:
@@ -85,22 +85,22 @@ def crawlingRcept(rcpNum):
                 'tbody > tr:nth-child(11) > td:nth-child(7) > span')[0]
             netProfits = table.get_text().split()
 
-            sales.append('-')
-            profits.append('-')
-            netProfits.append('-')
+            #sales.append('-')
+            #profits.append('-')
+            #netProfits.append('-')
             try:
                 profitRate = (int(profits[0].replace(
                     ',', ''))/int(sales[0].replace(',', '')))*100
             except:
                 profitRate = '-'
 
-            # print("rcpNum: ", rcp)
-            # print('sales: ', sales)
-            # print('profits: ', profits)
-            # print('netProfits: ', netProfits, '\n')
+            #print("rcpNum: ", rcp)
+            #print('sales: ', sales)
+            #print('profits: ', profits)
+            #print('netProfits: ', netProfits, '\n')
 
             result['data'].append({'종목코드': rcp[0], '종목명': rcp[1], '유동비율': '-', '부채비율': '-', '영업이익률': str(profitRate),
-                                   '매출액 성장률': sales[1].strip('()'), '영업이익 성장률': profits[1].strip('()'), '당기순이익 성장률': netProfits[1].strip('()')})
+                                   '매출액 성장률': sales[-1].strip('()'), '영업이익 성장률': profits[-1].strip('()'), '당기순이익 성장률': netProfits[-1].strip('()')})
 
         except Exception as ex:
             print(ex, rcp)
@@ -158,10 +158,8 @@ def readWiseReport(corp_code):
 
 if __name__ == "__main__":
     nowTime = time.strftime('%Y%m%d', time.localtime(time.time()))
-    preDisclosure = json.load(
-        open('data/Disclosure_1.json', 'r', encoding='utf-8'))
-    disclosure = getDisclosure(20210216)
-
+    preDisclosure = json.load(open('data/Disclosure_1.json', 'r', encoding='utf-8'))
+    disclosure = getDisclosure(20210217)
     diffList = diffStockList(preDisclosure, disclosure)
 
     receptNum = getRceptNum(diffList)  # receptNum에 신규 잠정실적 종목리스트 있음
