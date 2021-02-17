@@ -133,12 +133,12 @@ def getConsensus(data):
     addUp = {}
     data = data['data']
     for comDic in data:
-        addUp.update(readWiseReport(comDic['종목코드']))
+        addUp.update(readWiseReport(comDic['종목코드'], comDic['종목명']))
         pprint(addUp)
     return addUp
 
 
-def readWiseReport(corp_code):
+def readWiseReport(corp_code, name):
     """[네이버증권 크롤링]
 
     Args:
@@ -152,8 +152,9 @@ def readWiseReport(corp_code):
 
     res = requests.get(URL)
     jdata = json.loads(res.text)
+    jdata['Name'] = name
     # print(corp_code, ': ')
-    return {corp_code: jdata['JsonData']}
+    return {corp_code: jdata['JsonData'][-2]}
 
 
 if __name__ == "__main__":
