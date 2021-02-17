@@ -24,7 +24,7 @@ def getDisclosure(begin_date):
         param = {
             'crtfc_key': API_KEY,
             'bgn_de': str(begin_date),
-            'pblntf_detail_ty': 'I002',#pblntf_ty["잠정"],
+            'pblntf_detail_ty': 'I002',  # pblntf_ty["잠정"],
             'corp_cls': 'K',
             'page_no': str(page_count),
             'page_count': '100'
@@ -34,7 +34,7 @@ def getDisclosure(begin_date):
             'https://opendart.fss.or.kr/api/list.json', params=param)
         r.raise_for_status()
         data = json.loads(r.text)
-        print(data)
+        # print(data)
 
         result['data'].append(data)
         if data['total_page'] <= page_count:
@@ -62,7 +62,7 @@ def getRceptNum(diffList):
 
 def crawlingRcept(rcpNum):
     result = {'data': []}
-    print(rcpNum)
+    # print(rcpNum)
     for rcp in rcpNum:
         try:
             res = requests.get(
@@ -121,35 +121,45 @@ def diffStockList(pre, now):
     return diffList
 
 
-def getConsensus(stockCodeList, data):
-    # pprint(result)
+def getConsensus(data):
+    """[result 파일 기반으로 네이버 증권 컨센 자료값 서치]
+
+    Args:
+        data (dict): [검색 필요한 종목]
+
+    Returns:
+        [dict:dict]: [data안의 모든 기업 분기별 정보]
+    """
+    addUp = {}
     data = data['data']
-    stockCodeList = stockCodeList['data'][0]['list']
     for comDic in data:
-        stockCode = ''
-        for stockList in stockCodeList:
-            if comDic['종목코드'] == stockList['stock_code']:
-                print(stockList['stock_code'])
-                stockCode = stockList['stock_code']
-                break
-        readWiseReport(stockCode)
+        addUp.update(readWiseReport(comDic['종목코드']))
+    return addUp
 
 
 def readWiseReport(corp_code):
-    print(corp_code)
+    """[네이버증권 크롤링]]
+
+    Args:
+        corp_code (String): [증권번호]
+
+    Returns:
+        [dict]]: [분기별 정보]
+    """
     URL = 'https://navercomp.wisereport.co.kr/company/ajax/c1050001_data.aspx?flag=2&cmp_cd=' + \
         str(corp_code)+'&finGubun=MAIN&frq=1&sDT=20210210&chartType=svg'
 
     res = requests.get(URL)
     jdata = json.loads(res.text)
-    print(corp_code, ': ')
-    pprint(jdata)
-    #  return [corp_code:]
+    # print(corp_code, ': ')
+    # pprint(jdata)
+    return {corp_code: jdata['JsonData'][0]}
 
 
 if __name__ == "__main__":
     nowTime = time.strftime('%Y%m%d', time.localtime(time.time()))
-    preDisclosure = json.load(open('data/Disclosure_1.json', 'r', encoding='utf-8'))
+    preDisclosure = json.load(
+        open('data/Disclosure_1.json', 'r', encoding='utf-8'))
     disclosure = getDisclosure(20210216)
 
     diffList = diffStockList(preDisclosure, disclosure)
@@ -160,7 +170,7 @@ if __name__ == "__main__":
     output.to_csv("data/result.csv", encoding='UTF-8-SIG')
     print('Done')
 
-    getConsensus(diffList, result)
+    pprint(getConsensus(result))
 
     '''
     1분기보고서 : 11013
