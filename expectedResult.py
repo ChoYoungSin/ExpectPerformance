@@ -152,9 +152,8 @@ def readWiseReport(corp_code, name):
 
     res = requests.get(URL)
     jdata = json.loads(res.text)
-    jdata['Name'] = name
-    # print(corp_code, ': ')
-    return {corp_code: jdata['JsonData'][-2]}
+
+    return {corp_code: jdata['JsonData'][-2], 'Name': name}
 
 
 if __name__ == "__main__":
