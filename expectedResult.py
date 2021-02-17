@@ -2,11 +2,8 @@
 
 import json
 import requests
-import re
 from bs4 import BeautifulSoup
-from pandas import DataFrame as df
 import time
-from pprint import pprint
 
 nowTime = time.strftime('%Y-%m-%d-%H-%M', time.localtime(time.time()))
 API_KEY = '5f07cd939992731e7c66c87fe28923daa3366e94'
@@ -14,7 +11,7 @@ API_KEY = '5f07cd939992731e7c66c87fe28923daa3366e94'
 pblntf_ty = {"분기": 'A003', "잠정": 'I002'}
 
 
-def getDisclosure(begin_date):
+def getDisclosure():
     # Disclosure 추출.
     # 결과: Disclosure.json 생성
     # API : 공시정보
@@ -23,8 +20,8 @@ def getDisclosure(begin_date):
     while True:
         param = {
             'crtfc_key': API_KEY,
-            'bgn_de': str(begin_date),
-            'pblntf_detail_ty': 'I002',  # pblntf_ty["잠정"],
+            #'bgn_de': str(begin_date),
+            'pblntf_detail_ty': ['I002', 'A001'],  # pblntf_ty["잠정"],
             # 'corp_cls': 'K',
             'page_no': str(page_count),
             'page_count': '100'
@@ -39,6 +36,7 @@ def getDisclosure(begin_date):
         result['data'].append(data)
         if data['total_page'] <= page_count:
             break
+        print(page_count)
         page_count += 1
 
     with open('data/Disclosure.json', 'w', encoding='UTF-8') as jf:
@@ -48,16 +46,18 @@ def getDisclosure(begin_date):
 
 
 def getRceptNum(diffList):
-    temp = []
+    expect = []
+    thisTerm = []
     for enterprise in diffList:
         if '잠정' in enterprise['report_nm']:
-            temp.append([enterprise['stock_code'], enterprise['corp_name'],
-                         enterprise['rcept_no']])  # enterprise['report_nm'],
+            expect.append([enterprise['stock_code'], enterprise['corp_name'], enterprise['rcept_no']])  # enterprise['report_nm'],
+        elif '보고서' in enterprise['report_nm'] and '정정' not in enterprise['report_nm'] and '추가' not in enterprise['report_nm']:
+            thisTerm.append([enterprise['stock_code'], enterprise['corp_name'], enterprise['rcept_no']])
 
     with open('data/RceptNumber.json', 'w', encoding='UTF-8') as outfile:
-        json.dump(temp, outfile, indent=4, ensure_ascii=False)
+        json.dump(expect + thisTerm, outfile, indent=4, ensure_ascii=False)
 
-    return temp
+    return expect, thisTerm
 
 
 def crawlingRcept(rcpNum):
@@ -85,9 +85,6 @@ def crawlingRcept(rcpNum):
                 'tbody > tr:nth-child(11) > td:nth-child(7) > span')[0]
             netProfits = table.get_text().split()
 
-            # sales.append('-')
-            # profits.append('-')
-            # netProfits.append('-')
             try:
                 profitRate = (int(profits[0].replace(
                     ',', ''))/int(sales[0].replace(',', '')))*100
@@ -120,63 +117,3 @@ def diffStockList(pre, now):
             diffList.append(i)
     return diffList
 
-
-def getConsensus(data):
-    """[result 파일 기반으로 네이버 증권 컨센 자료값 서치]
-
-    Args:
-        data (dict): [검색 필요한 종목]
-
-    Returns:
-        [dict:list]: [data안의 모든 기업 분기별 정보]
-    """
-    addUp = {}
-    data = data['data']
-    for comDic in data:
-        addUp.update(readWiseReport(comDic['종목코드'], comDic['종목명']))
-        #pprint(addUp)
-    return addUp
-
-
-def readWiseReport(corp_code, name):
-    """[네이버증권 크롤링]
-
-    Args:
-        corp_code (String): [증권번호]
-
-    Returns:
-        [dict]: [분기별 정보]
-    """
-    URL = 'https://navercomp.wisereport.co.kr/company/ajax/c1050001_data.aspx?flag=2&cmp_cd=' + \
-        str(corp_code)+'&finGubun=MAIN&frq=1&sDT=20210210&chartType=svg'
-
-    res = requests.get(URL)
-    jdata = json.loads(res.text)
-    jdata['JsonData'][-2]['Name'] = name
-    return {corp_code: jdata['JsonData'][-2]}
-
-
-if __name__ == "__main__":
-    nowTime = time.strftime('%Y%m%d', time.localtime(time.time()))
-    preDisclosure = json.load(
-        open('data/Disclosure_1.json', 'r', encoding='utf-8'))
-    disclosure = getDisclosure(20210217)
-    diffList = diffStockList(preDisclosure, disclosure)
-
-    receptNum = getRceptNum(diffList)  # receptNum에 신규 잠정실적 종목리스트 있음
-    result = crawlingRcept(receptNum)  # result에 신규 잠정실적 크롤링 결과 있음
-    output = df(data=result['data'])
-    output.to_csv("data/result.csv", encoding='UTF-8-SIG')
-    print('Done')
-
-    pprint(getConsensus(result))
-
-    '''
-    1분기보고서 : 11013
-    반기보고서 : 11012
-    3분기보고서 : 11014
-    사업보고서 : 11011
-
-    bsns_year = 사업연도
-    ※ 2015년 이후 부터 정보제공
-    '''
