@@ -25,7 +25,7 @@ def getDisclosure(begin_date):
             'crtfc_key': API_KEY,
             'bgn_de': str(begin_date),
             'pblntf_detail_ty': 'I002',  # pblntf_ty["잠정"],
-            #'corp_cls': 'K',
+            # 'corp_cls': 'K',
             'page_no': str(page_count),
             'page_count': '100'
         }
@@ -34,7 +34,7 @@ def getDisclosure(begin_date):
             'https://opendart.fss.or.kr/api/list.json', params=param)
         r.raise_for_status()
         data = json.loads(r.text)
-        #print(data)
+        # print(data)
 
         result['data'].append(data)
         if data['total_page'] <= page_count:
@@ -85,9 +85,9 @@ def crawlingRcept(rcpNum):
                 'tbody > tr:nth-child(11) > td:nth-child(7) > span')[0]
             netProfits = table.get_text().split()
 
-            #sales.append('-')
-            #profits.append('-')
-            #netProfits.append('-')
+            # sales.append('-')
+            # profits.append('-')
+            # netProfits.append('-')
             try:
                 profitRate = (int(profits[0].replace(
                     ',', ''))/int(sales[0].replace(',', '')))*100
@@ -128,23 +128,24 @@ def getConsensus(data):
         data (dict): [검색 필요한 종목]
 
     Returns:
-        [dict:dict]: [data안의 모든 기업 분기별 정보]
+        [dict:list]: [data안의 모든 기업 분기별 정보]
     """
     addUp = {}
     data = data['data']
     for comDic in data:
         addUp.update(readWiseReport(comDic['종목코드']))
+        pprint(addUp)
     return addUp
 
 
 def readWiseReport(corp_code):
-    """[네이버증권 크롤링]]
+    """[네이버증권 크롤링]
 
     Args:
         corp_code (String): [증권번호]
 
     Returns:
-        [dict]]: [분기별 정보]
+        [dict]: [분기별 정보]
     """
     URL = 'https://navercomp.wisereport.co.kr/company/ajax/c1050001_data.aspx?flag=2&cmp_cd=' + \
         str(corp_code)+'&finGubun=MAIN&frq=1&sDT=20210210&chartType=svg'
@@ -152,13 +153,13 @@ def readWiseReport(corp_code):
     res = requests.get(URL)
     jdata = json.loads(res.text)
     # print(corp_code, ': ')
-    # pprint(jdata)
-    return {corp_code: jdata['JsonData'][0]}
+    return {corp_code: jdata['JsonData']}
 
 
 if __name__ == "__main__":
     nowTime = time.strftime('%Y%m%d', time.localtime(time.time()))
-    preDisclosure = json.load(open('data/Disclosure_1.json', 'r', encoding='utf-8'))
+    preDisclosure = json.load(
+        open('data/Disclosure_1.json', 'r', encoding='utf-8'))
     disclosure = getDisclosure(20210217)
     diffList = diffStockList(preDisclosure, disclosure)
 
