@@ -6,11 +6,13 @@ import re
 from bs4 import BeautifulSoup
 from pandas import DataFrame as df
 import time
+from pprint import pprint
 
 nowTime = time.strftime('%Y-%m-%d-%H-%M', time.localtime(time.time()))
 API_KEY = '5f07cd939992731e7c66c87fe28923daa3366e94'
 
 pblntf_ty = {"분기": 'A003', "잠정": 'I002'}
+
 
 def getDisclosure(begin_date):
     # Disclosure 추출.
@@ -38,17 +40,18 @@ def getDisclosure(begin_date):
             break
         page_count += 1
 
-
     with open('data/Disclosure.json', 'w', encoding='UTF-8') as jf:
         jsonString = json.dumps(result, indent=4, ensure_ascii=False)
         jf.write(jsonString)
     return result
 
+
 def getRceptNum(diffList):
     temp = []
     for enterprise in diffList:
         if '잠정' in enterprise['report_nm']:
-            temp.append([enterprise['corp_code'], enterprise['corp_name'], enterprise['rcept_no']]) #enterprise['report_nm'],
+            temp.append([enterprise['corp_code'], enterprise['corp_name'],
+                         enterprise['rcept_no']])  # enterprise['report_nm'],
 
     with open('data/RceptNumber.json', 'w', encoding='UTF-8') as outfile:
         json.dump(temp, outfile, indent=4, ensure_ascii=False)
@@ -60,32 +63,39 @@ def crawlingRcept(rcpNum):
     result = {'data': []}
     for rcp in rcpNum:
         try:
-            res = requests.get('http://dart.fss.or.kr/dsaf001/main.do?rcpNo=' + rcp[2])
+            res = requests.get(
+                'http://dart.fss.or.kr/dsaf001/main.do?rcpNo=' + rcp[2])
             soup = BeautifulSoup(res.content, 'html.parser')
-            src = soup.find('a', {'href':'#download'})
+            src = soup.find('a', {'href': '#download'})
             dcmNum = src.get('onclick')[35:42]
 
-            res = requests.get('http://dart.fss.or.kr/report/viewer.do?rcpNo='+rcp[2]+'&dcmNo='+dcmNum+'&eleId=0&offset=0&length=0&dtd=HTML')
+            res = requests.get('http://dart.fss.or.kr/report/viewer.do?rcpNo=' +
+                               rcp[2]+'&dcmNo='+dcmNum+'&eleId=0&offset=0&length=0&dtd=HTML')
             soup = BeautifulSoup(res.content, 'html.parser')
-            table = soup.select('tbody > tr:nth-child(5) > td:nth-child(7) > span')[0]
+
+            table = soup.select(
+                'tbody > tr:nth-child(5) > td:nth-child(7) > span')[0]
             sales = table.get_text().split()
-            table = soup.select('tbody > tr:nth-child(7) > td:nth-child(7) > span')[0]
+            table = soup.select(
+                'tbody > tr:nth-child(7) > td:nth-child(7) > span')[0]
             profits = table.get_text().split()
-            table = soup.select('tbody > tr:nth-child(11) > td:nth-child(7) > span')[0]
+            table = soup.select(
+                'tbody > tr:nth-child(11) > td:nth-child(7) > span')[0]
             netProfits = table.get_text().split()
 
             sales.append('-')
             profits.append('-')
             netProfits.append('-')
             try:
-                profitRate = (int(profits[0].replace(',', ''))/int(sales[0].replace(',', '')))*100
+                profitRate = (int(profits[0].replace(
+                    ',', ''))/int(sales[0].replace(',', '')))*100
             except:
                 profitRate = '-'
 
-            print("rcpNum: ", rcp)
-            print('sales: ', sales)
-            print('profits: ', profits)
-            print('netProfits: ', netProfits, '\n')
+            # print("rcpNum: ", rcp)
+            # print('sales: ', sales)
+            # print('profits: ', profits)
+            # print('netProfits: ', netProfits, '\n')
 
             result['data'].append({'종목코드': rcp[0], '종목명': rcp[1], '유동비율': '-', '부채비율': '-', '영업이익률': str(profitRate),
                                    '매출액 성장률': sales[1].strip('()'), '영업이익 성장률': profits[1].strip('()'), '당기순이익 성장률': netProfits[1].strip('()')})
@@ -96,6 +106,7 @@ def crawlingRcept(rcpNum):
     with open('data/RceptCrawling.json', 'w', encoding='UTF-8') as outfile:
         json.dump(result, outfile, indent=4, ensure_ascii=False)
     return result
+
 
 def diffStockList(pre, now):
     diffList = []
@@ -108,9 +119,33 @@ def diffStockList(pre, now):
     return diffList
 
 
+def getConsensus(stockCodeList, data):
+    # pprint(result)
+    data = data['data']
+    stockCodeList = stockCodeList['data'][0]['list']
+    for comDic in data:
+        stockCode = ''
+        for stockList in stockCodeList:
+            if comDic['종목코드'] == stockList['stock_code']:
+                stockCode = stockList['stock_code']
+        readWiseReport(stockCode)
+
+
+def readWiseReport(corp_code):
+    print(corp_code)
+    URL = 'https://navercomp.wisereport.co.kr/company/ajax/c1050001_data.aspx?flag=2&cmp_cd=' + \
+        str(corp_code)+'&finGubun=MAIN&frq=1&sDT=20210210&chartType=svg'
+
+    res = requests.get(URL)
+    jdata = json.loads(res.text)
+    pprint(jdata)
+    #  return [corp_code:]
+
+
 if __name__ == "__main__":
     nowTime = time.strftime('%Y%m%d', time.localtime(time.time()))
-    preDisclosure = json.load(open('data/Disclosure_1.json', 'r', encoding='utf-8'))
+    preDisclosure = json.load(
+        open('data/Disclosure_1.json', 'r', encoding='utf-8'))
     disclosure = getDisclosure(20210210)
     diffList = diffStockList(preDisclosure, disclosure)
 
@@ -119,6 +154,8 @@ if __name__ == "__main__":
     output = df(data=result['data'])
     output.to_csv("data/result.csv", encoding='UTF-8-SIG')
     print('Done')
+
+    getConsensus(preDisclosure, result)
 
     '''
     1분기보고서 : 11013
