@@ -134,7 +134,7 @@ def getConsensus(data):
     data = data['data']
     for comDic in data:
         addUp.update(readWiseReport(comDic['종목코드'], comDic['종목명']))
-        pprint(addUp)
+        #pprint(addUp)
     return addUp
 
 
@@ -152,9 +152,8 @@ def readWiseReport(corp_code, name):
 
     res = requests.get(URL)
     jdata = json.loads(res.text)
-    jdata = jdata['JsonData'][-2]
-    jdata['Name'] = name
-    return {corp_code: jdata}
+    jdata['JsonData'][-2]['Name'] = name
+    return {corp_code: jdata['JsonData'][-2]}
 
 
 if __name__ == "__main__":
