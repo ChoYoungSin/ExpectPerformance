@@ -20,7 +20,7 @@ def getDisclosure():
     while True:
         param = {
             'crtfc_key': API_KEY,
-            #'bgn_de': str(begin_date),
+            'bgn_de': str(20210216),
             'pblntf_detail_ty': ['I002', 'A001'],  # pblntf_ty["잠정"],
             # 'corp_cls': 'K',
             'page_no': str(page_count),
@@ -61,7 +61,7 @@ def getRceptNum(diffList):
 
 
 def crawlingRcept(rcpNum):
-    result = {'data': []}
+    result = {}
     # print(rcpNum)
     for rcp in rcpNum:
         try:
@@ -76,14 +76,49 @@ def crawlingRcept(rcpNum):
             soup = BeautifulSoup(res.content, 'html.parser')
 
             table = soup.select(
+                'tbody > tr:nth-child(5) > td:nth-child(3) > span')[0]
+            sales = table.get_text().split()[-1]
+            if sales != '-':
+                sales = float(sales.strip('()').replace(',', ''))
+
+            table = soup.select(
                 'tbody > tr:nth-child(5) > td:nth-child(7) > span')[0]
-            sales = table.get_text().split()
+            salesRate = table.get_text().split()[-1]
+
+            table = soup.select(
+                'tbody > tr:nth-child(7) > td:nth-child(3) > span')[0]
+            profits = table.get_text().split()[-1]
             table = soup.select(
                 'tbody > tr:nth-child(7) > td:nth-child(7) > span')[0]
-            profits = table.get_text().split()
+            if profits != '-':
+                profits = float(profits.strip('()').replace(',', ''))
+            profitsRate = table.get_text().split()[-1]
+
+            table = soup.select(
+                'tbody > tr:nth-child(11) > td:nth-child(3) > span')[0]
+            netProfits = table.get_text().split()[-1]
+            if netProfits != '-':
+                netProfits = float(netProfits.strip('()').replace(',', ''))
             table = soup.select(
                 'tbody > tr:nth-child(11) > td:nth-child(7) > span')[0]
-            netProfits = table.get_text().split()
+            netProfitsRate = table.get_text().split()[-1]
+
+            table = soup.select(
+                'tbody > tr:nth-child(2) > td:nth-child(2) > span')
+            if table != []:
+                unit = table[0].get_text()
+            else:
+                table = soup.select(
+                    'tbody > tr:nth-child(3) > td:nth-child(1) > span')
+                unit = table[0].get_text()
+            if '백' in unit:
+                unit = 100
+            elif '천' in unit:
+                unit = 1000
+            elif '억' in unit:
+                unit = 10000
+            else:
+                unit = 100
 
             try:
                 profitRate = (int(profits[0].replace(
@@ -91,13 +126,13 @@ def crawlingRcept(rcpNum):
             except:
                 profitRate = '-'
 
-            #print("rcpNum: ", rcp)
-            #print('sales: ', sales)
-            #print('profits: ', profits)
-            #print('netProfits: ', netProfits, '\n')
-
-            result['data'].append({'종목코드': rcp[0], '종목명': rcp[1], #'유동비율': '-', '부채비율': '-', '영업이익률': str(profitRate),
-                                   '매출액 성장률': sales[-1].strip('()'), '영업이익 성장률': profits[-1].strip('()'), '당기순이익 성장률': netProfits[-1].strip('()')})
+            '''print("rcpNum: ", rcp)
+            print('sales: ', sales)
+            print('profits: ', profits)
+            print('netProfits: ', netProfits, '\n')'''
+            result.update({rcp[0] : {'종목명': rcp[1], '단위': unit,
+                                   '매출액': sales, '영업이익': profits, '당기순이익': netProfits,
+                                   '매출액 성장률': salesRate.strip('()').replace(',', ''), '영업이익 성장률': profitsRate.strip('()').replace(',', ''), '당기순이익 성장률': netProfitsRate.strip('()').replace(',', '')}})
 
         except Exception as ex:
             print(ex, rcp)

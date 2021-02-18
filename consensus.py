@@ -11,9 +11,9 @@ def getConsensus(data):
         [dict:list]: [data안의 모든 기업 분기별 정보]
     """
     addUp = {}
-    data = data['data']
-    for comDic in data:
-        addUp.update(readWiseReport(comDic['종목코드'], comDic['종목명']))
+    for stockCode in data.keys():
+        name = data[stockCode]['종목명']
+        addUp.update(readWiseReport(stockCode, name))
         #pprint(addUp)
     return addUp
 
@@ -32,5 +32,5 @@ def readWiseReport(corp_code, name):
 
     res = requests.get(URL)
     jdata = json.loads(res.text)
-    jdata['JsonData'][-2]['Name'] = name
-    return {corp_code: jdata['JsonData'][-2]}
+    jdata['JsonData'][-3]['Name'] = name
+    return {corp_code: jdata['JsonData'][-3]}
