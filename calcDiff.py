@@ -1,23 +1,25 @@
 from consensus import getConsensus
 from expectedResult import getDisclosure, diffStockList, getRceptNum, crawlingRcept
 import json
+from multiprocessing import Process, Queue
 
-from pandas import DataFrame as df
+import pandas as pd
 import time
 import win32com.client
 import telegram
-from pprint import pprint
 
 chat_token = "1631423601:AAGfki6HTB0SSB7tDHP_Vj-WbuziwAg7FJg"
-bot = telegram.Bot(token = chat_token)
-updates = bot.getUpdates()
+bot = telegram.Bot(token=chat_token)
 
-'''for i in updates:
-    print(i)'''
-ys_id = 1170179304
-yj_id = 1175245571
+'''updates = bot.getUpdates()
+    code_list = []
+
+    for i in updates:
+        print(i)'''
+id_list = [1170179304, 1437194944, 1175245571, 1619942450, 1338655098, 1184589601, 1255604220, 1215592271,1227872883]
 rate = 1.1  # 컨센 대비 10% 이상
-rateUser = 10
+rateUser = int((rate - 1) * 100)
+
 
 def multi(x):
     if x >= 0:
@@ -38,12 +40,18 @@ def calc(x, y): # x : 실적, y : 컨센
         return '적자기업'
 
 
-if __name__ == "__main__":
+#if __name__ == "__main__":
+
+def mainF(q):
     print('Process Start')
     print('          매출액     영업이익     순이익')
     while True:
-        preDisclosure = json.load(open('data/Disclosure_1.json', 'r', encoding='utf-8'))
+        preDisclosure = json.load(open('data/Disclosure.json', 'r', encoding='utf-8'))
         disclosure = getDisclosure()
+        if disclosure == False:
+            time.sleep(3)
+            print('No new msg')
+            continue
         diffList = diffStockList(preDisclosure, disclosure)
 
         # expect   : 잠정 실적 종목 정보들 param : [종목 코드, 종목명, rcept_no, corp_code]
@@ -83,7 +91,7 @@ if __name__ == "__main__":
 
             print(result[stockCode]['종목명'], '실적: ', sales, op, np)
             print(result[stockCode]['종목명'], '컨센: ', expectSales, expectOp, expectNp)
-            print(result[stockCode]['당기순이익 성장률'],'\n')
+            print(result[stockCode]['당기순이익 성장률'], '\n')
 
             if sales != '-' and op != '-' and np != '-' and op > 0 and np > 0: # 적자 기업 제거
                 sales *= unit
@@ -96,24 +104,53 @@ if __name__ == "__main__":
                 # Case 1 셋다 비교
                 if flagA and flagB and flagC and sales > multi(expectSales) and op > multi(expectOp) and np > multi(expectNp):
                     t = '[' + result[stockCode]['종목명'] + '] : 매출액, 영업이익, 순이익 ' + str(rateUser) + '% 이상\n' + textForm
-                    bot.sendMessage(chat_id=ys_id, text=t)
-                    #bot.sendMessage(chat_id=yj_id, text=result[stockCode]['종목명'] + ' : Case 1 셋다 ' + str(rate) + '% 증가')
+                    q.put(stockCode)
+                    for id in id_list:
+                        bot.sendMessage(chat_id=id, text=t)
+                    df = pd.read_csv('data/save.csv')
+                    df = df.append({'name': result[stockCode]['종목명'], '매출액': format(round(sales / 10000.0), ','),
+                                    '영익': format(round(op / 10000.0), ','), '순익': format(round(np / 10000.0), ','),
+                                    '매출액 성장률': result[stockCode]['매출액 성장률'] + '%)',
+                                    '영업이익 성장률': result[stockCode]['영업이익 성장률'] + '%)',
+                                    '당기순이익 성장률': result[stockCode]['당기순이익 성장률'] + '%)',
+                                    '컨센대비 매출액': calc(sales, expectSales), '컨센대비 영익': calc(op, expectOp),
+                                    '컨센대비 순익': calc(np, expectNp)}, ignore_index=True)
 
                 # Case 2 매출액,영익
                 elif flagA and flagB and sales > multi(expectSales) and op > multi(expectOp):
                     t = '[' + result[stockCode]['종목명'] + '] : 매출액,영업이익' + str(rateUser) + '% 이상\n' + textForm
-                    bot.sendMessage(chat_id=ys_id, text=t)
-                    #bot.sendMessage(chat_id=yj_id, text=result[stockCode]['종목명'] + ' : Case 2 매출액,영익 ' + str(rate) + '% 증가')
+                    q.put(stockCode)
+                    for id in id_list:
+                        bot.sendMessage(chat_id=id, text=t)
+                        df = pd.read_csv('data/save.csv')
+                        df = df.append(
+                            {'name': result[stockCode]['종목명'], '매출액': format(round(sales / 10000.0), ','),
+                             '영익': format(round(op / 10000.0), ','), '순익': format(round(np / 10000.0), ','),
+                             '매출액 성장률': result[stockCode]['매출액 성장률'] + '%)',
+                             '영업이익 성장률': result[stockCode]['영업이익 성장률'] + '%)',
+                             '당기순이익 성장률': result[stockCode]['당기순이익 성장률'] + '%)',
+                             '컨센대비 매출액': calc(sales, expectSales), '컨센대비 영익': calc(op, expectOp),
+                             '컨센대비 순익': calc(np, expectNp)}, ignore_index=True)
 
                 # Case 3 영익, 순익
                 elif flagB and flagC and op > multi(expectOp) and np > multi(expectNp):
                     t = '[' + result[stockCode]['종목명'] + '] : 영업이익, 순이익' + str(rateUser) + '% 이상\n' + textForm
-                    bot.sendMessage(chat_id=ys_id, text=t)
-                    #bot.sendMessage(chat_id=yj_id, text=result[stockCode]['종목명'] + ' : Case 3 영익, 순익 ' + str(rate) + '% 증가')
+                    q.put(stockCode)
+                    for id in id_list:
+                        bot.sendMessage(chat_id=id, text=t)
+                        df = pd.read_csv('data/save.csv')
+                        df = df.append(
+                            {'name': result[stockCode]['종목명'], '매출액': format(round(sales / 10000.0), ','),
+                             '영익': format(round(op / 10000.0), ','), '순익': format(round(np / 10000.0), ','),
+                             '매출액 성장률': result[stockCode]['매출액 성장률'] + '%)',
+                             '영업이익 성장률': result[stockCode]['영업이익 성장률'] + '%)',
+                             '당기순이익 성장률': result[stockCode]['당기순이익 성장률'] + '%)',
+                             '컨센대비 매출액': calc(sales, expectSales), '컨센대비 영익': calc(op, expectOp),
+                             '컨센대비 순익': calc(np, expectNp)}, ignore_index=True)
 
         print('Done')
-        time.sleep(3)
-        break
+
+        time.sleep(5)
         # 개장 시간 : 380분, 22800초
         # 하루에 1만회 조회 가능
         # 22800 / 10000 = 2.28

@@ -20,7 +20,7 @@ def getDisclosure():
     while True:
         param = {
             'crtfc_key': API_KEY,
-            'bgn_de': str(20210216),
+            #'bgn_de': str(20210216),
             'pblntf_detail_ty': ['I002', 'A001'],  # pblntf_ty["잠정"],
             # 'corp_cls': 'K',
             'page_no': str(page_count),
@@ -31,8 +31,9 @@ def getDisclosure():
             'https://opendart.fss.or.kr/api/list.json', params=param)
         r.raise_for_status()
         data = json.loads(r.text)
-        # print(data)
-
+        #print(data)
+        if data['status'] == '013':
+            return False
         result['data'].append(data)
         if data['total_page'] <= page_count:
             break
