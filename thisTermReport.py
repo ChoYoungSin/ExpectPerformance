@@ -60,7 +60,7 @@ def return_performance(finance_info):
     jCorp = finance_info
     result = {}
 
-    for corp, data in jCorp.items():
+    for _, data in jCorp.items():
         if data['status'] == '013':
             return 'API정보 없음'
 
@@ -80,10 +80,6 @@ def return_performance(finance_info):
 
 
 def run_performance(thisTerm):
-    # thisTerm = [['039840', '디오', '20210305000233', '00115931'],
-    #             ['017480', '삼현철강', '20210305000102', '00128926'],
-    #             ['039790', '위노바', '20210305000097', '00261735'],
-    #             ['134380', '미원화학', '20210305000063', '00855163']]
 
     result = {}
     for t in thisTerm:
@@ -96,4 +92,8 @@ def run_performance(thisTerm):
 
 
 if __name__ == "__main__":
-    pprint(run_performance())
+    thisTerm = [['039840', '디오', '20210305000233', '00115931'],
+                ['017480', '삼현철강', '20210305000102', '00128926'],
+                ['039790', '위노바', '20210305000097', '00261735'],
+                ['134380', '미원화학', '20210305000063', '00855163']]
+    pprint(run_performance(thisTerm))
