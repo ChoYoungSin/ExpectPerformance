@@ -59,7 +59,7 @@ def mainF(q):
         # expect   : 잠정 실적 종목 정보들 param : [종목 코드, 종목명, rcept_no, corp_code]
         # thisTerm : 정기 공시 종목 정보들 param : [종목 코드, 종목명, rcept_no, corp_code]
         expect, thisTerm = getRceptNum(diffList)
-        result = thisTermReport.run_performance(thisTerm)
+        result = thisTermReport.run_performance(thisTerm,2020,11011)
         #result = crawlingRcept(expect)  # result에 신규 잠정실적 크롤링 결과 있음
 
         consen = getConsensus(result)
