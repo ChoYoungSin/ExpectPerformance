@@ -132,6 +132,7 @@ class CpEvent:
                 t = item['시간'] + '  ' + item['종목명'] + '  : ' + item['특이사항']
                 for id in calcDiff.id_list:
                     calcDiff.bot.sendMessage(chat_id=id, text=t)
+                    break
                 print(item)
 
         # 실시간 처리 - marketnews : 뉴스 및 공시 정보
@@ -153,6 +154,7 @@ class CpEvent:
             t = item['시간'] + '  ' + item['종목명'] + '  : ' + item['특이사항']
             for id in calcDiff.id_list:
                 calcDiff.bot.sendMessage(chat_id=id, text=t)
+                break
             print(item)
             self.caller.listWatchData.insert(0, item)
 

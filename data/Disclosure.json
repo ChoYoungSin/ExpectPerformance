@@ -5,20 +5,10 @@
             "message": "정상",
             "page_no": 1,
             "page_count": 100,
-            "total_count": 1,
+            "total_count": 10,
             "total_page": 1,
             "list": [
-                {
-                    "corp_code": "00124805",
-                    "corp_name": "푸른저축은행",
-                    "stock_code": "007330",
-                    "corp_cls": "K",
-                    "report_nm": "사업보고서 (2020.12)",
-                    "rcept_no": "20210303000650",
-                    "flr_nm": "푸른저축은행",
-                    "rcept_dt": "20210304",
-                    "rm": ""
-                }
+                
             ]
         }
     ]

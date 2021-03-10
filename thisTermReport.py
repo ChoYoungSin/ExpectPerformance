@@ -60,22 +60,21 @@ def return_performance(finance_info):
     jCorp = finance_info
     result = {}
 
-    for _, data in jCorp.items():
+    for name, data in jCorp.items():
         if data['status'] == '013':
-            return 'API정보 없음'
+            return None
 
         data = data['list']
 
         stock_code = data[0]['stock_code']
-        result[stock_code] = {}
-        result[stock_code]['매출액'] = search_dict('매출액', data)
-        result[stock_code]['영업이익'] = search_dict('영업이익', data)
-        result[stock_code]['순이익'] = search_dict('당기순이익', data)
-        result[stock_code]['매출액 성장률'] = round(search_growth('매출액', data)[0], 3)
-        result[stock_code]['영업이익 성장률'] = round(
-            search_growth('영업이익', data)[0], 3)
-        result[stock_code]['순이익 성장률'] = round(
-            search_growth('당기순이익', data)[0], 3)
+        result['종목명'] = name
+        result['매출액'] = search_dict('매출액', data)/1000000
+        result['영업이익'] = search_dict('영업이익', data)/1000000
+        result['순이익'] = search_dict('당기순이익', data)/1000000
+        result['매출액 성장률'] = str(round(search_growth('매출액', data)[0], 2))
+        result['영업이익 성장률'] = str(round(search_growth('영업이익', data)[0], 2))
+        result['순이익 성장률'] = str(round(search_growth('당기순이익', data)[0], 2))
+        result['단위'] = 100
     return result
 
 
@@ -85,9 +84,11 @@ def run_performance(thisTerm):
     for t in thisTerm:
         finance_info = get_finance_info(2020, 11011, t[1], t[3])
         if finance_info == False:
-            result[t[0]] = 'API 정보 없음'
+            pass
         else:
-            result[t[0]] = return_performance(finance_info)
+            ret = return_performance(finance_info)
+            if ret != None:
+                result[t[0]] = ret
     return result
 
 

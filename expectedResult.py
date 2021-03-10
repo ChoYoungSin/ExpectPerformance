@@ -40,9 +40,9 @@ def getDisclosure():
         print(page_count)
         page_count += 1
 
-    with open('data/Disclosure.json', 'w', encoding='UTF-8') as jf:
+    '''with open('data/Disclosure.json', 'w', encoding='UTF-8') as jf:
         jsonString = json.dumps(result, indent=4, ensure_ascii=False)
-        jf.write(jsonString)
+        jf.write(jsonString)'''
     return result
 
 
@@ -51,9 +51,11 @@ def getRceptNum(diffList):
     thisTerm = []
     for enterprise in diffList:
         if '잠정' in enterprise['report_nm']:
-            expect.append([enterprise['stock_code'], enterprise['corp_name'], enterprise['rcept_no'], enterprise['corp_code']])
+            if enterprise['stock_code'] != '':
+                expect.append([enterprise['stock_code'], enterprise['corp_name'], enterprise['rcept_no'], enterprise['corp_code']])
         elif '보고서' in enterprise['report_nm'] and '정정' not in enterprise['report_nm'] and '추가' not in enterprise['report_nm']:
-            thisTerm.append([enterprise['stock_code'], enterprise['corp_name'], enterprise['rcept_no'], enterprise['corp_code']])
+            if enterprise['stock_code'] != '':
+                thisTerm.append([enterprise['stock_code'], enterprise['corp_name'], enterprise['rcept_no'], enterprise['corp_code']])
 
     with open('data/RceptNumber.json', 'w', encoding='UTF-8') as outfile:
         json.dump(expect + thisTerm, outfile, indent=4, ensure_ascii=False)
@@ -132,8 +134,8 @@ def crawlingRcept(rcpNum):
             print('profits: ', profits)
             print('netProfits: ', netProfits, '\n')'''
             result.update({rcp[0] : {'종목명': rcp[1], '단위': unit,
-                                   '매출액': sales, '영업이익': profits, '당기순이익': netProfits,
-                                   '매출액 성장률': salesRate.strip('()').replace(',', ''), '영업이익 성장률': profitsRate.strip('()').replace(',', ''), '당기순이익 성장률': netProfitsRate.strip('()').replace(',', '')}})
+                                   '매출액': sales, '영업이익': profits, '순이익': netProfits,
+                                   '매출액 성장률': salesRate.strip('()').replace(',', ''), '영업이익 성장률': profitsRate.strip('()').replace(',', ''), '순이익 성장률': netProfitsRate.strip('()').replace(',', '')}})
 
         except Exception as ex:
             print(ex, rcp)
