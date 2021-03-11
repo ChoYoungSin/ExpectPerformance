@@ -94,9 +94,7 @@ def run_performance(thisTerm,business_year,report_code):
     for t in thisTerm:
         if report_code != 11011:
             finance_info = get_finance_info(business_year, report_code, t[1], t[3])
-            if finance_info == False:
-                pass
-            else:
+            if finance_info:             
                 ret = return_performance(finance_info)
                 if ret != None:
                     result[t[0]] = ret
